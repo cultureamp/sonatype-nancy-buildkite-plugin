@@ -5,7 +5,6 @@ set -euo pipefail
 # - set nancy version
 # - set local working directory
 # - mount local dir in nancy container (allowing config)
-# - properly test command failure
 # - add results to build annotation
 
 go_version="${BUILDKITE_PLUGIN_SONATYPE_NANCY_GO_VERSION:-1-alpine}"
