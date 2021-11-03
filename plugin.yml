@@ -1,0 +1,10 @@
+name: Nancy
+description: Executes the Sonatype Nancy dependency checker tool for Go
+author: https://github.com/jamestelfer
+requirements: []
+configuration:
+  properties:
+    go-version:
+      type: string
+      description: "The version of the Go Docker image to use. By default, '1-alpine' will be used, and '-alpine' will be appended to the image unless a specific runtime is supplied."
+  additionalProperties: false

@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+
+go_version="${BUILDKITE_PLUGIN_SONATYPE_NANCY_GO_VERSION:-1-alpine}"
+#TODO nancy_version
+
+tmp_dep_list="/tmp/golang-nancy-deps.json"
+tmp_nancy_output="/tmp/golang-nancy-results.txt"
+
+image_label="${go_version}"
+if [[ "${go_version}" != "latest" && "${go_version}" != *"-"* ]]; then
+    # use the Alpine image by default, unless a specific base is in the version
+    image_label="${go_version}-alpine"
+fi
+
+echo "--- :docker: Pulling images"
+docker pull sonatypecommunity/nancy:latest
+docker pull golang:"${image_label}"
+
+echo "--- :golang: Extracting dependency list"
+docker run --rm -it -v "$(pwd)":/app -w /app "golang:${image_label}" go list -json -m all | tee "${tmp_dep_list}"
+
+echo "--- :nancy: Running Nancy"
+docker run --rm -i sonatypecommunity/nancy:latest sleuth < "${tmp_dep_list}" | tee "${tmp_nancy_output}"
+
