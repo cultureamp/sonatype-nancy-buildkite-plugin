@@ -3,15 +3,16 @@ set -euo pipefail
 
 # Yet to do:
 # - set nancy version
-# - set local working directory
-# - mount local dir in nancy container (allowing config)
 # - add results to build annotation
 
 go_version="${BUILDKITE_PLUGIN_SONATYPE_NANCY_GO_VERSION:-1-alpine}"
 #TODO nancy_version
+work_dir="${BUILDKITE_PLUGIN_SONATYPE_NANCY_WORKING_DIRECTORY:-.}"
 
 tmp_dep_list="/tmp/golang-nancy-deps.json"
 tmp_nancy_output="/tmp/golang-nancy-results.txt"
+
+src_dir="$(realpath "$(pwd)/${work_dir}")"
 
 image_label="${go_version}"
 if [[ "${go_version}" != "latest" && "${go_version}" != *"-"* ]]; then
@@ -24,8 +25,8 @@ docker pull sonatypecommunity/nancy:latest
 docker pull golang:"${image_label}"
 
 echo "--- :golang: Extracting dependency list"
-docker run --rm -it -v "$(pwd)":/app -w /app "golang:${image_label}" go list -json -m all | tee "${tmp_dep_list}"
+docker run --rm -it -v "${src_dir}":/app -w /app "golang:${image_label}" go list -json -m all | tee "${tmp_dep_list}"
 
 echo "--- :nancy: Running Nancy"
-docker run --rm -i sonatypecommunity/nancy:latest sleuth < "${tmp_dep_list}" | tee "${tmp_nancy_output}"
+docker run --rm -i -v "${src_dir}":/app -w /app sonatypecommunity/nancy:latest sleuth < "${tmp_dep_list}" | tee "${tmp_nancy_output}"
 

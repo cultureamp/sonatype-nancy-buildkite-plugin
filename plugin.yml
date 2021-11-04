@@ -7,4 +7,7 @@ configuration:
     go-version:
       type: string
       description: "The version of the Go Docker image to use. By default, '1-alpine' will be used, and '-alpine' will be appended to the image unless a specific runtime is supplied."
+    working-directory:
+      type: string
+      description: "Set the working directory to use, defaults to the root directory."
   additionalProperties: false

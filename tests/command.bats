@@ -54,8 +54,8 @@ load '/usr/local/lib/bats/load.bash'
   expected_go_image="1-alpine"
 
   assert_success
-  assert_line --partial "run --rm -it -v /plugin:/app -w /app golang:${expected_go_image} go list -json -m all"
-  assert_line --partial "run --rm -i sonatypecommunity/nancy:latest sleuth"
+  assert_line --regexp "run --rm -it .* golang:${expected_go_image} go list -json -m all"
+  assert_line --regexp "run --rm -i .* sonatypecommunity/nancy:latest sleuth"
 }
 
 @test "Runs with the latest version of Go by default" {
@@ -98,7 +98,6 @@ load '/usr/local/lib/bats/load.bash'
   assert_line --regexp "run.+ golang:${expected_go_image} go list -json -m all"
 }
 
-
 @test "Uses specific Go image when supplied" {
   export BUILDKITE_PLUGIN_SONATYPE_NANCY_GO_VERSION="1.17-bullseye"
 
@@ -117,4 +116,44 @@ load '/usr/local/lib/bats/load.bash'
   assert_success
   assert_line --partial "pull golang:${expected_go_image}"
   assert_line --regexp "run.+ golang:${expected_go_image} go list -json -m all"
+}
+
+@test "Uses current directory when no working directory is supplied" {
+  export BUILDKITE_PLUGIN_SONATYPE_NANCY_WORKING_DIRECTORY=""
+
+  stub docker \
+    'pull * : echo $@' \
+    'pull * : echo $@' \
+    'run * : echo $@' \
+    'run * : echo $@'
+
+  run "$PWD/hooks/command"
+
+  unstub docker
+
+  expected_work_dir="/plugin"
+
+  assert_success
+  assert_line --regexp "run.* -it -v ${expected_work_dir}:/app -w /app golang:"
+  assert_line --regexp "run.* -i -v ${expected_work_dir}:/app -w /app sonatypecommunity/nancy:"
+}
+
+@test "Mounts correct working directory when supplied" {
+  export BUILDKITE_PLUGIN_SONATYPE_NANCY_WORKING_DIRECTORY="hooks"
+
+  stub docker \
+    'pull * : echo $@' \
+    'pull * : echo $@' \
+    'run * : echo $@' \
+    'run * : echo $@'
+
+  run "$PWD/hooks/command"
+
+  expected_work_dir="/plugin/hooks"
+
+  assert_success
+  assert_line --regexp "run.* -it -v ${expected_work_dir}:/app -w /app golang:"
+  assert_line --regexp "run.* -i -v ${expected_work_dir}:/app -w /app sonatypecommunity/nancy:"
+
+  unstub docker
 }
