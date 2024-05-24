@@ -7,7 +7,7 @@ metadata:
     for Go.
   tags:
     - users-internal
-    - camp-platform
+    - camp-sre
     - data-internal-use-only
     - buildkite-plugin
   annotations:
@@ -15,5 +15,5 @@ metadata:
     github.com/team-slug: cultureamp/core-services
 spec:
   type: library
-  owner: core-services
+  owner: sre-foundations
   lifecycle: production
