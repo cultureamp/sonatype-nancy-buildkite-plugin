@@ -2,18 +2,17 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: sonatype-nancy-buildkite-plugin
-  description: >
-    A Buildkite plugin for using Sonatype's community Nancy dependency checker
-    for Go.
+  description: |
+    A Buildkite plugin for using Sonatype's community Nancy dependency checker for Go.
   tags:
-    - users-internal
-    - camp-platform
-    - data-internal-use-only
     - buildkite-plugin
+    - camp-sre
+    - data-internal-use-only
+    - users-internal
   annotations:
     github.com/project-slug: cultureamp/sonatype-nancy-buildkite-plugin
-    github.com/team-slug: cultureamp/core-services
+    github.com/team-slug: cultureamp/sre-foundations
 spec:
   type: library
-  owner: core-services
+  owner: sre-foundations
   lifecycle: production
